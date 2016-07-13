@@ -31,6 +31,7 @@ handle(Req, State) ->
                         cowboy_req:reply(400, [], Error, Req1),
                     {ok, Req2, State};
                 {T, {ok, Start, R2}} ->
+                    lager:info("QUERY: ~s", [Q]),
                     R3 = [[{<<"n">>, Name},
                            {<<"r">>, Resolution},
                            {<<"v">>, mmath_bin:to_list(Data)}]
