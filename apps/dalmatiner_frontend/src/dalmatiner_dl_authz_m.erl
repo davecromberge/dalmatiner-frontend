@@ -134,8 +134,8 @@ check_query_part_access({named, _N, Nested}, OrgOidMap) ->
     check_query_part_access(Nested, OrgOidMap);
 check_query_part_access({calc, _Chain, Selector}, OrgOidMap) ->
     check_query_part_access(Selector, OrgOidMap);
-check_query_part_access({combine, _Operation, Selector}, OrgOidMap) ->
-    check_query_part_access(Selector, OrgOidMap);
+check_query_part_access({combine, _Operation, Parts}, OrgOidMap) ->
+    check_query_access(Parts, OrgOidMap);
 % Always allow access to variables, because they will be checked in aliases part
 check_query_part_access({var, _Name}, _OrgOidMap) ->
     allow;
