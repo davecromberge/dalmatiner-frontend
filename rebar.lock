@@ -20,7 +20,7 @@
   {git,"https://github.com/dataloop/dqe_idx_mongodb.git",
        {ref,"5dac22e95f8c558fd39ac551695220cb1ffcab48"}},
   0},
- {<<"dqe_idx_pg">>,{pkg,<<"dqe_idx_pg">>,<<"0.2.5">>},0},
+ {<<"dqe_idx_pg">>,{pkg,<<"dqe_idx_pg">>,<<"0.2.6">>},0},
  {<<"ejwt">>,{pkg,<<"ejwt">>,<<"0.1.0">>},0},
  {<<"eper">>,{pkg,<<"eper">>,<<"0.94.0">>},0},
  {<<"epgsql">>,{pkg,<<"epgsql">>,<<"3.1.1">>},2},
