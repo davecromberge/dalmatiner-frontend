@@ -103,55 +103,89 @@ assert(require_collection_access, Req) ->
             {deny, Req2}
     end;
 assert(require_query_collection_access, Req) ->
+    case assert(require_authenticated, Req) of
+        {deny, _} = R ->
+            R;
+        {_, Req1} ->
+            assert_query(Req1)
+    end.
+
+assert_query(Req) ->
     {Q, Req1} =  cowboy_req:qs_val(<<"q">>, Req),
-    case dql:prepare(Q) of
-        {ok, {Parts, _Start, _Count, _Res, Aliases, _Buckets}} ->
+    case prepare_query(Q) of
+        {ok, Parts} ->
             {UserId, Req2} = cowboy_req:meta(dl_auth_user, Req1),
             {ok, Orgs} = dalmatiner_dl_data:user_orgs(UserId),
             OrgOidMap = lists:foldl(fun (O, Acc) ->
                                             K = maps:get(<<"_id">>, O),
                                             Acc#{K => allow}
                                    end, #{}, Orgs),
-            AList = gb_trees:values(Aliases),
-            Access = check_query_access(Parts ++ AList, OrgOidMap),
+            Access = check_query_all_parts_access(Parts, OrgOidMap),
             {Access, Req2};
+        {error, {badmatch, _}} ->
+            %% In case of errors in query parsing, we want to let request
+            %% througs, so response rendering gets oportunity to explain 
+            %% errors in query syntax
+            {allow, Req1};
         {error, E} ->
-            Error = list_to_binary(dqe:error_string({error, E})),
-            lager:warning("Error in query validation [~s]: ~p", [Q, E]),
-            {error, 400, Error, Req1}
+            S = erlang:get_stacktrace(),
+            lager:error("Error in query validation [~s]: ~p~n~p", [Q, E, S]),
+            {error, 500, "Internal Server Error", Req1}
     end.
 
+prepare_query(Q) ->
+    S = binary_to_list(Q),
+    try
+        {ok, L, _} = dql_lexer:string(S),
+        {ok, {select, Qs, Aliases, _T}} = dql_parser:parse(L),
+        {ok, Qs1} = dql_alias:expand(Qs, Aliases),
+        {ok, Qs1}
+    catch
+        error:Reason ->
+            {error, Reason}
+    end.
 
-check_query_access([], _) ->
+check_query_all_parts_access([], _) ->
     allow;
-check_query_access([Part | Rest], OrgOidMap) ->
+check_query_all_parts_access([Part | Rest], OrgOidMap) ->
     case check_query_part_access(Part, OrgOidMap) of
-        allow -> check_query_access(Rest, OrgOidMap);
+        allow -> check_query_all_parts_access(Rest, OrgOidMap);
         Access -> Access
     end.
 
-check_query_part_access({named, _N, Nested}, OrgOidMap) ->
+%% Go though each named subject
+check_query_part_access(#{op := named,
+                          args := [_Name, Nested]},
+                        OrgOidMap) ->
     check_query_part_access(Nested, OrgOidMap);
-check_query_part_access({calc, _Chain, Selector}, OrgOidMap) ->
-    check_query_part_access(Selector, OrgOidMap);
-check_query_part_access({combine, _Operation, Parts}, OrgOidMap) ->
-    check_query_access(Parts, OrgOidMap);
-% Always allow access to variables, because they will be checked in aliases part
-check_query_part_access({var, _Name}, _OrgOidMap) ->
+%% Check all function call arguments
+check_query_part_access(#{op := fcall,
+                          args := #{inputs := Parts}},
+                        OrgOidMap) ->
+    check_query_all_parts_access(Parts, OrgOidMap);
+%% ,but skip all constant arguments
+check_query_part_access(#{op := time}, _) ->
     allow;
-% Right now access by bucket is groupped and finger is first segment of metric
-check_query_part_access({get, {_Bucket, Metric}}, OrgOidMap) ->
+check_query_part_access(#{op := integer}, _) ->
+    allow;
+check_query_part_access(#{op := float}, _) ->
+    allow;
+%% If argument is a lookup operation, we can check access directly by comparing
+%% requested collection
+check_query_part_access(#{op := lookup,
+                          args := [Collection, _Met | _Optional]},
+                        OrgOidMap) ->
+    Oid = {base16:decode(Collection)},
+    maps:get(Oid, OrgOidMap, deny);
+
+%% If argument is old plain service, we need to figgure out if the finger
+%% within query scope is allowed. Right now bucked is used only for grouping
+%% and finger is first segment of metric. Glob is just a special case of metric
+%% selector. We don't allow for first level globbing anyway.
+check_query_part_access(#{op := Op,
+                          args := [_Bucket, Metric]},
+                        OrgOidMap) when Op =:= get orelse Op =:= sget ->
     Finger = hd(Metric),
     OrgOids = maps:keys(OrgOidMap),
     {ok, Access} = dalmatiner_dl_data:agent_access(Finger, OrgOids),
-    Access;
-% We do the same with globs
-check_query_part_access({sget, {Bucket, Glob}}, OrgOidMap) ->
-    check_query_part_access({get, {Bucket, Glob}}, OrgOidMap);
-% Mapping by colleciton already uses collection as org id
-check_query_part_access({lookup, {in, Collection, _Met}}, OrgOidMap) ->
-    Oid = {base16:decode(Collection)},
-    maps:get(Oid, OrgOidMap, deny);
-check_query_part_access({lookup, {in, Collection, _Met, _Where}}, OrgOidMap) ->
-    Oid = {base16:decode(Collection)},
-    maps:get(Oid, OrgOidMap, deny).
+    Access.
