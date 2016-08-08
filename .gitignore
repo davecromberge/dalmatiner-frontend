@@ -25,5 +25,6 @@ apps/dalmatiner_frontend/src/dql_lexer.erl
 apps/dalmatiner_frontend/src/dql_parser.erl
 _build
 /_checkouts
+/log
 TEST-*
 rebar3.crashdump
