@@ -59,6 +59,8 @@ start(_StartType, _StartArgs) ->
                          {"/status", dalmatiner_status_handler, []},
                          {"/inspect", dalmatiner_inspect_handler, []},
                          {"/dl", dalmatiner_idx_handler, []},
+                         %% List all functions
+                         {"/dl/functions", dalmatiner_function_h, []},
                          %% List all collections
                          {"/dl/collections", dalmatiner_dl_collection_h, []},
                          %% List all tag namespaces in collection
