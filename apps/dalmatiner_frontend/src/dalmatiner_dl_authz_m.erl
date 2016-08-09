@@ -124,7 +124,7 @@ assert_query(Req) ->
             {Access, Req2};
         {error, {badmatch, _}} ->
             %% In case of errors in query parsing, we want to let request
-            %% througs, so response rendering gets oportunity to explain 
+            %% througs, so response rendering gets oportunity to explain
             %% errors in query syntax
             {allow, Req1};
         {error, E} ->
@@ -153,10 +153,10 @@ check_query_all_parts_access([Part | Rest], OrgOidMap) ->
         Access -> Access
     end.
 
-%% Go though each named subject
-check_query_part_access(#{op := named,
+%% Go though each named subject or timeshift
+check_query_part_access(#{op := Op,
                           args := [_Name, Nested]},
-                        OrgOidMap) ->
+                        OrgOidMap) when Op =:= named orelse Op =:= timeshift ->
     check_query_part_access(Nested, OrgOidMap);
 %% Check all function call arguments
 check_query_part_access(#{op := fcall,
