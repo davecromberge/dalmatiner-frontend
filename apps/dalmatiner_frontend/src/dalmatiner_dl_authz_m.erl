@@ -166,10 +166,6 @@ check_query_part_access(#{op := fcall,
 %% ,but skip all constant arguments
 check_query_part_access(#{op := time}, _) ->
     allow;
-check_query_part_access(#{op := integer}, _) ->
-    allow;
-check_query_part_access(#{op := float}, _) ->
-    allow;
 check_query_part_access(Const, _) when is_number(Const) ->
     allow;
 %% If argument is a lookup operation, we can check access directly by comparing
