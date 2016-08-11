@@ -26,7 +26,7 @@
  {<<"jsone">>,{pkg,<<"jsone">>,<<"1.2.6">>},0},
  {<<"jsx">>,{pkg,<<"jsx">>,<<"2.8.0">>},1},
  {<<"lager">>,{pkg,<<"lager">>,<<"3.2.1">>},0},
- {<<"mmath">>,{pkg,<<"mmath">>,<<"0.2.6">>},1},
+ {<<"mmath">>,{pkg,<<"mmath">>,<<"0.2.7">>},1},
  {<<"mongodb">>,
   {git,"https://github.com/comtihon/mongodb-erlang.git",
        {ref,"87610554a63f095f8b7722a80540507cf1c504a1"}},
