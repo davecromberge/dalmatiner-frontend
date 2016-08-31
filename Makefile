@@ -15,6 +15,7 @@ version_header: version
 clean: deb-clean
 	$(REBAR) clean
 	make -C rel/pkg clean
+	make -C rel/deb clean
 	-rm -r apps/*/ebin
 
 rel: update
