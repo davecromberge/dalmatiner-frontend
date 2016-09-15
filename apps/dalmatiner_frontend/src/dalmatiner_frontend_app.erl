@@ -24,6 +24,8 @@ start(_StartType, _StartArgs) ->
 
                          {"/functions", dalmatiner_function_h, []},
 
+                         {"/events", dalmatiner_event_h, []},
+
                          %% New style API
                          %% List all collections
                          {"/collections", dalmatiner_collection_h, []},
@@ -124,6 +126,7 @@ start(_StartType, _StartArgs) ->
                                  {middlewares,
                                   [dalmatiner_dl_authn_m,
                                    cowboy_router,
+                                   dalmatiner_cors_m,
                                    dalmatiner_dl_authz_m,
                                    cowboy_handler]},
                                  {max_keepalive, 5},
