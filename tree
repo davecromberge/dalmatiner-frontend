@@ -1,8 +1,7 @@
-                                           <<"0.1.12">>})
 [0m├─ base16─1.0.0
 ├─ cowboy─1.0.4
 │  └─ cowlib─1.0.2
-├─ dalmatiner_frontend─0.3.0-alpha0
+├─ dalmatiner_frontend─0.2.0
 ├─ dqe─0.3.17
 │  ├─ ddb_connection─0.1.12
 │  │  └─ ddb_client─0.1.30
