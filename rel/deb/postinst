@@ -6,7 +6,8 @@ if [[ $(id dalmatiner 2>/dev/null) ]] ;then
     chown -R dalmatiner:dalmatiner /var/log/dfe
 fi
 
-CONFFILE=/etc/dfe/dfe.conf
-
-cp ${CONFFILE}.example ${CONFFILE}
-sed -i -e "s/dqe_idx_ddb/dqe_idx_pg/g" ${CONFFILE}
+# Do not overwrite existing config
+#CONFFILE=/etc/dfe/dfe.conf
+#
+#cp ${CONFFILE}.example ${CONFFILE}
+#sed -i -e "s/dqe_idx_ddb/dqe_idx_pg/g" ${CONFFILE}
