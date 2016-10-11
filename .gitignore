@@ -21,10 +21,10 @@ rel/pkg/packlist
 .eqc-info
 *.eqc
 apps/dalmatiner_frontend/include/dalmatiner_frontend_version.hrl
-apps/dalmatiner_frontend/src/dql_lexer.erl
-apps/dalmatiner_frontend/src/dql_parser.erl
 _build
 /_checkouts
 /log
 TEST-*
 rebar3.crashdump
+apps/dalmatiner_frontend/src/event_query_lexer.xrl
+apps/dalmatiner_frontend/src/event_query_parser.yrl
