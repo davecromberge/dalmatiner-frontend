@@ -106,7 +106,7 @@ find_user_orgs(C, UserId) ->
 find_user_groups(C, UserId) ->
     UserOid = {base16:decode(UserId)},
     find(C, <<"groups">>,
-         {<<"users.user">>, UserOid},
+         #{<<"users.user">> => UserOid},
          #{projector =>
                {<<"_id">>, true,
                 <<"name">>, true}}).
@@ -128,24 +128,24 @@ find_org_by_group_direct(_C, [], _) ->
     [];
 find_org_by_group_direct(C, Gids, OrgProjector) ->
     find(C, <<"orgs">>,
-         {<<"group">>, {<<"$in">>, Gids}},
+         #{<<"group">> => {<<"$in">>, Gids}},
          #{projector => OrgProjector}).
 
 find_org_by_group_tenancy(_C, [], _) ->
     [];
 find_org_by_group_tenancy(C, Gids, OrgProjector) ->
     Tenants = find(C, <<"tenants">>,
-                   {<<"group">>, {<<"$in">>, Gids}},
+                   #{<<"group">> => {<<"$in">>, Gids}},
                    #{projector => {<<"_id">>, true}}),
     Tids = pick(<<"_id">>, Tenants),
     find(C, <<"orgs">>,
-         {<<"tenant">>, {<<"$in">>, Tids}},
+         #{<<"tenant">> => {<<"$in">>, Tids}},
          #{projector => OrgProjector}).
 
 populate_each_org_tenant(C, Orgs) ->
     Uids = pick(<<"tenant">>, Orgs),
     Cursor = mc_worker_api:find(C, <<"tenants">>,
-                                {<<"_id">>, {<<"$in">>, Uids}},
+                                #{<<"_id">> => {<<"$in">>, Uids}},
                                 #{projector => {<<"name">>, true}}),
     TMap = mc_cursor:foldl(fun (#{<<"_id">> := Uid} = T, Acc) ->
                                    Acc#{Uid => T}
@@ -157,12 +157,12 @@ populate_each_org_tenant(C, Orgs) ->
 
 find_token(C, TokenId) ->
     TokenOid = {base16:decode(TokenId)},
-    mc_worker_api:find_one(C, <<"usertokens">>, {<<"_id">>, TokenOid}).
+    mc_worker_api:find_one(C, <<"usertokens">>, #{<<"_id">> => TokenOid}).
 
 check_user_org_access(C, UserId, OrgId) ->
     Groups = find_user_groups(C, UserId),
     OrgOid = {base16:decode(OrgId)},
-    Org = mc_worker_api:find_one(C, <<"orgs">>, {<<"_id">>, OrgOid},
+    Org = mc_worker_api:find_one(C, <<"orgs">>, #{<<"_id">> => OrgOid},
                                  #{projector => {
                                      <<"group">>, true,
                                      <<"tenant">>, true}}),
@@ -173,7 +173,7 @@ check_user_org_access(C, UserId, OrgId) ->
     end.
 
 check_user_tenant_access(C, UserGroups, TenantOid) ->
-    Tenant = mc_worker_api:find_one(C, <<"tenants">>, {<<"_id">>, TenantOid},
+    Tenant = mc_worker_api:find_one(C, <<"tenants">>, #{<<"_id">> => TenantOid},
                                     #{projector => {<<"group">>, true}}),
     #{<<"group">> := Group} = Tenant,
     case includes(<<"_id">>, Group, UserGroups) of
@@ -183,8 +183,8 @@ check_user_tenant_access(C, UserGroups, TenantOid) ->
 
 check_agent_access(C, Finger, OrgOids) ->
     Agent = mc_worker_api:find_one(C, <<"agents">>,
-                                   {<<"_id">>, Finger,
-                                    <<"org">>, {<<"$in">>, OrgOids}},
+                                   #{<<"_id">> => Finger,
+                                     <<"org">> => {<<"$in">>, OrgOids}},
                                    #{projector => {<<"_id">>, true}}),
     case Agent of
         #{<<"_id">> := _} ->

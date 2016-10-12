@@ -10,7 +10,7 @@ compile: $(REBAR) .git/hooks/pre-commit
 .git/hooks/pre-commit: hooks/pre-commit
 	cp hooks/pre-commit .git/hooks
 
-pre-commit: test-scripts test-vsn lint xref dialyzer test 
+pre-commit: test-scripts test-vsn lint xref test
 
 dialyzer: $(REBAR)
 	$(REBAR) dialyzer

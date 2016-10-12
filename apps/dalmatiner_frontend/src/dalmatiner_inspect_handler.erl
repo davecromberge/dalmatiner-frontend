@@ -33,13 +33,12 @@ handle(Req, State) ->
                     {ok, Req2} =
                         cowboy_req:reply(400, [], Error, Req1),
                     {ok, Req2, State};
-                {ok, {Total, Unique, Parts, Start, Count}} ->
+                {ok, {Total, Unique, Parts}, Start} ->
                     #{buckets := BucketSet,
                       roots := RootSet} = inspect_parts(Parts),
                     D = [{<<"b">>, sets:to_list(BucketSet)},
                          {<<"r">>, sets:to_list(RootSet)},
                          {<<"s">>, Start},
-                         {<<"c">>, Count},
                          {<<"t">>, Total},
                          {<<"u">>, Unique}],
                     {CType, Req2} = dalmatiner_idx_handler:content_type(Req1),
@@ -61,7 +60,7 @@ inspect_parts([Part | Rest], Acc) ->
     Acc1 = inspect_part(Part, Acc),
     inspect_parts(Rest, Acc1).
 
-inspect_part({dqe_get, [Bucket, Metric]},
+inspect_part({dqe_get, [_Start, _Count, _Res, Bucket, Metric]},
              Acc = #{buckets := BucketSet1,
                      roots := RootSet1}) ->
     Root = metric_root(Metric),
@@ -70,6 +69,8 @@ inspect_part({dqe_get, [Bucket, Metric]},
     Acc#{buckets := BucketSet2, roots := RootSet2};
 inspect_part({dqe_sum, [Nested]}, Acc) ->
     inspect_part({dqe_sum_nested, Nested}, Acc);
+inspect_part({dqe_collect, [_Q, _Res, Nested]}, Acc) ->
+    inspect_part(Nested, Acc);
 inspect_part({_Operand, []}, Acc) ->
     Acc;
 inspect_part({_Operand, [Nested | Rest]}, Acc) ->
@@ -82,4 +83,4 @@ inspect_part({_Operand, Nested}, Acc) when is_tuple(Nested) ->
     inspect_part(Nested, Acc).
 
 metric_root(Metric) ->
-    hd(dproto:metric_to_list(Metric)).
+    hd(Metric).
