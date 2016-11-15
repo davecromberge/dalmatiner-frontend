@@ -3,6 +3,10 @@
 
 -export([execute/2]).
 
+-ifdef(TEST).
+-export([prepare_query/1, check_query_part_access/2]).
+-endif.
+
 %%
 %% Authentycation middleware entry point
 %% =====================================
@@ -165,6 +169,10 @@ check_query_part_access(#{op := fcall,
     check_query_all_parts_access(Parts, OrgOidMap);
 %% ,but skip all constant arguments
 check_query_part_access(#{op := time}, _) ->
+    allow;
+check_query_part_access(#{op := integer}, _) ->
+    allow;
+check_query_part_access(#{op := float}, _) ->
     allow;
 check_query_part_access(Const, _) when is_number(Const) ->
     allow;

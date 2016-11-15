@@ -95,8 +95,12 @@ start(_StartType, _StartArgs) ->
                           ":metric/namespaces/:namespace/tags/"
                           ":tag/values",
                           dalmatiner_value_h, []},
+                         %% Destructure a query
+                         {"/destructure", dalmatiner_dl_destructure, []},
+                         %% Reify a query
+                         {"/reify", dalmatiner_dl_reify, []},
 
-                         %% STatic content.
+                         %% Static content.
                          {"/js/[...]", cowboy_static,
                           {priv_dir, dalmatiner_frontend, "static/js",
                            [{mimetypes, cow_mimetypes, web}]}},
