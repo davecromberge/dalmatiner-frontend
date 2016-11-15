@@ -53,10 +53,6 @@ destructure(Query) when is_binary(Query) ->
             E
     end.
 
-%%
-%% Private functions
-%% =================
-
 -spec expand_query(binary()) -> {ok, map()} | {error, term()}.
 expand_query(Q) ->
     S = binary_to_list(Q),

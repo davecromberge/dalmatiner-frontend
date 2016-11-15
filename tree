@@ -27,7 +27,7 @@
 ├─ fifo_utils─0.1.25
 │  └─ uuid─1.5.4
 │     └─ quickrand─1.5.4
-├─ jsone─1.2.6
+├─ jsone─1.4.0
 ├─ lager─3.2.1
 │  └─ goldrush─0.1.8
 ├─ mongodb─3.3

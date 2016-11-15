@@ -51,11 +51,11 @@ terminate(_Reason, _Req, _State) ->
 handle_json(Payload, Req, State) ->
     try
         Model = jsone:decode(Payload, [{keys, atom}]),
-        {ok, Query} = reify(Model),
+        Reified = reify(Model),
         {ok, Req1} = cowboy_req:reply(
                           200,
                           [{<<"content-type">>, <<"text/plain">>}],
-                          Query,
+                          Reified,
                           Req),
         {ok, Req1, State}
     catch
@@ -71,11 +71,9 @@ handle_json(Payload, Req, State) ->
             {ok, ReqN, State}
     end.
 
--spec reify(query() | part() | selector() | fn() | any()) -> {ok, binary()}.
+-spec reify(query() | part() | selector() | fn() | any()) -> binary().
 reify(D = #{ parts := Parts }) ->
-    Reified = <<"SELECT ", (reify(Parts))/binary, " ",
-                (reify_timeframe(D))/binary>>,
-    {ok, Reified};
+    <<"SELECT ", (reify(Parts))/binary, " ", (reify_timeframe(D))/binary>>;
 
 reify(Ls) when is_list(Ls) ->
     Qs = [reify(Q) || Q <- Ls],
