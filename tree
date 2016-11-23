@@ -2,7 +2,7 @@
 ├─ cowboy─1.0.4
 │  └─ cowlib─1.0.2
 ├─ dalmatiner_frontend─0.2.1
-├─ dqe─0.3.22
+├─ dqe─0.3.24
 │  ├─ ddb_connection─0.1.14
 │  │  └─ ddb_client─0.1.33
 │  ├─ dflow─0.1.5
@@ -11,12 +11,12 @@
 │  │  └─ snappy─1.1.1
 │  ├─ dqe_fun─0.1.11
 │  ├─ dqe_idx─0.2.1
-│  ├─ dqe_idx_ddb─0.2.0
-│  ├─ dqe_idx_pg─0.3.1
+│  ├─ dqe_idx_ddb─0.2.1
+│  ├─ dqe_idx_pg─0.3.3
 │  │  └─ pgapp─0.0.1
 │  │     └─ epgsql─3.1.1
 │  ├─ hdr_histogram─0.2.0
-│  ├─ mmath─0.2.9
+│  ├─ mmath─0.2.12
 │  └─ qdate─0.4.3
 │     ├─ erlang_localtime─1.0.0
 │     └─ erlware_commons─0.20.0
@@ -24,8 +24,8 @@
 ├─ ejwt─0.1.0
 │  └─ jsx─2.8.0
 ├─ eper─0.94.0
-├─ fifo_utils─0.1.25
-│  └─ uuid─1.5.4
+├─ fifo_utils─0.1.27
+│  └─ uuid─1.5.1
 │     └─ quickrand─1.5.4
 ├─ jsone─1.2.6
 ├─ lager─3.2.1
