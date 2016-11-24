@@ -133,6 +133,8 @@ start(_StartType, _StartArgs) ->
                                    dalmatiner_dl_authz_m,
                                    cowboy_handler]},
                                  {max_keepalive, 5},
+                                 %% Keep max url length in pair with nginx
+                                 {max_request_line_length, 8192},
                                  {timeout, 50000}]),
     dalmatiner_frontend_sup:start_link().
 
