@@ -69,6 +69,9 @@ populate_req_meta([], Req) ->
 populate_req_meta([{<<"scopes">>, S} | Rest], Req) ->
     Req1 = cowboy_req:set_meta(dl_auth_scopes, S, Req),
     populate_req_meta(Rest, Req1);
+populate_req_meta([{<<"orgs">>, S} | Rest], Req) ->
+    Req1 = cowboy_req:set_meta(dl_auth_orgs, S, Req),
+    populate_req_meta(Rest, Req1);
 populate_req_meta([{<<"aud">>, U} | Rest], Req) ->
     Req1 = cowboy_req:set_meta(dl_auth_user, U, Req),
     populate_req_meta(Rest, Req1);

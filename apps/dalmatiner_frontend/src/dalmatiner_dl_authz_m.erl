@@ -115,16 +115,15 @@ assert_query(Req) ->
     case prepare_query(Q) of
         {ok, Parts} ->
             {UserId, Req2} = cowboy_req:meta(dl_auth_user, Req1),
-            {ok, Orgs} = dalmatiner_dl_data:user_orgs(UserId),
+            {Orgs, Req3} = user_scope_orgs(UserId, Req2),
             OrgOidMap = lists:foldl(fun (O, Acc) ->
-                                            K = maps:get(<<"_id">>, O),
-                                            Acc#{K => allow}
-                                   end, #{}, Orgs),
+                                            Acc#{O => allow}
+                                    end, #{}, Orgs),
             Access = check_query_all_parts_access(Parts, OrgOidMap),
-            {Access, Req2};
+            {Access, Req3};
         {error, {badmatch, _}} ->
             %% In case of errors in query parsing, we want to let request
-            %% througs, so response rendering gets oportunity to explain
+            %% throug, so response rendering gets oportunity to explain
             %% errors in query syntax
             {allow, Req1};
         {error, E} ->
@@ -137,7 +136,7 @@ prepare_query(Q) ->
     S = binary_to_list(Q),
     try
         {ok, L, _} = dql_lexer:string(S),
-        {ok, {select, Qs, Aliases, _T}} = dql_parser:parse(L),
+        {ok, {select, Qs, Aliases, _T, _Limit}} = dql_parser:parse(L),
         {ok, Qs1} = dql_alias:expand(Qs, Aliases),
         {ok, Qs1}
     catch
@@ -187,3 +186,12 @@ check_query_part_access(#{op := Op,
     OrgOids = maps:keys(OrgOidMap),
     {ok, Access} = dalmatiner_dl_data:agent_access(Finger, OrgOids),
     Access.
+
+user_scope_orgs(<<"guest">>, Req) ->
+    {Orgs, Req2} = cowboy_req:meta(dl_auth_orgs, Req),
+    OrgIds = [{base16:decode(Hex)} || Hex <- Orgs],
+    {OrgIds, Req2};
+user_scope_orgs(UserId, Req) ->
+    {ok, Objs} = dalmatiner_dl_data:user_orgs(UserId),
+    OrgIds = [maps:get(<<"_id">>, O) || O <- Objs],
+    {OrgIds, Req}.
