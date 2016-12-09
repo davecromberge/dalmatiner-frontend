@@ -33,6 +33,9 @@ authorize(Req, Env) ->
     case eval_acl(Acl, Req) of
         {allow, Req1} ->
             {ok, Req1};
+        {unauth, Req1} ->
+            {ok, Req2} = cowboy_req:reply(401, Req1),
+            {halt, Req2};
         {deny, Req1} ->
             {ok, Req2} = cowboy_req:reply(403, Req1),
             {halt, Req2};
@@ -90,24 +93,24 @@ assert(require_authenticated, Req) ->
         {true, Req1} ->
             {allow, Req1};
         {_, Req1} ->
-            {deny, Req1}
+            {unauth, Req1}
     end;
 assert(require_collection_access, Req) ->
     {OrgId, Req1} = cowboy_req:binding(collection, Req),
     {UserId, Req2} = cowboy_req:meta(dl_auth_user, Req1),
     case cowboy_req:meta(dl_auth_is_authenticated, Req) of
-        {true, Req2} ->
+        {allow, Req2} ->
             {ok, Access} = dalmatiner_dl_data:user_org_access(UserId, OrgId),
             {Access, Req2};
         {_, Req1} ->
-            {deny, Req2}
+            {unauth, Req2}
     end;
 assert(require_query_collection_access, Req) ->
     case assert(require_authenticated, Req) of
-        {deny, _} = R ->
-            R;
-        {_, Req1} ->
-            assert_query(Req1)
+        {allow, Req1} ->
+            assert_query(Req1);
+        R ->
+            R
     end.
 
 assert_query(Req) ->

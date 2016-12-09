@@ -57,7 +57,7 @@ authenticate_token(Token, Req) ->
     {ok, Key} = application:get_env(dalmatiner_frontend, jwt_secret),
     case ejwt:decode(Token, Key) of
         error ->
-            {ok, Req1} = cowboy_req:reply(403, Req),
+            {ok, Req1} = cowboy_req:reply(401, Req),
             {halt, Req1};
         Payload ->
             Req1 = populate_req_meta(Payload, Req),
