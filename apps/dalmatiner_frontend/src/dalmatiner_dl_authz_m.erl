@@ -96,14 +96,14 @@ assert(require_authenticated, Req) ->
             {unauth, Req1}
     end;
 assert(require_collection_access, Req) ->
-    {OrgId, Req1} = cowboy_req:binding(collection, Req),
-    {UserId, Req2} = cowboy_req:meta(dl_auth_user, Req1),
-    case cowboy_req:meta(dl_auth_is_authenticated, Req) of
-        {allow, Req2} ->
+    case assert(require_authenticated, Req) of
+        {allow, Req1} ->
+            {OrgId, Req2} = cowboy_req:binding(collection, Req1),
+            {UserId, Req3} = cowboy_req:meta(dl_auth_user, Req2),
             {ok, Access} = dalmatiner_dl_data:user_org_access(UserId, OrgId),
-            {Access, Req2};
-        {_, Req1} ->
-            {unauth, Req2}
+            {Access, Req3};
+        R ->
+            R
     end;
 assert(require_query_collection_access, Req) ->
     case assert(require_authenticated, Req) of
