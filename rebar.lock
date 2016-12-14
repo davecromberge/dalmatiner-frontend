@@ -13,7 +13,7 @@
  {<<"dproto">>,{pkg,<<"dproto">>,<<"0.1.25">>},1},
  {<<"dqe">>,
   {git,"https://github.com/dataloop/dqe.git",
-       {ref,"b7ba4fa2d9027ce49d372393f67d6c035e9f3c2a"}},
+       {ref,"0444bd29e2b3bf82b80f209d99eb559ff8a3c1b8"}},
   0},
  {<<"dqe_fun">>,{pkg,<<"dqe_fun">>,<<"0.1.11">>},1},
  {<<"dqe_idx">>,{pkg,<<"dqe_idx">>,<<"0.2.1">>},1},
